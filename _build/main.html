@@ -1,0 +1,677 @@
+---
+interact_link: content/main.ipynb
+kernel_name: python3
+kernel_path: content
+has_widgets: false
+title: |-
+  Data analysis
+pagenum: 0
+prev_page:
+  url: 
+next_page:
+  url: 
+suffix: .ipynb
+search: countries data startdate rescale nsmooth cases start set used list country available want name confirmed different covid create coviddata following note january usually good true curves same case wont repository module hederacovid py plotting get using also later figure shows extremely dependent testing protocols capacity function parameters where plot smoothing averaged days total scale mortality rate analysis short report analyzes johns hopkins ccse github com cssegisanddata related pandemic preliminaries developed simple python functions visualize well periodically update datasets those online object type datahandler class perform internally operation dataset afterwards ready clean initialize possible done mycountry getcountry given third column region
+
+comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
+---
+
+    <main class="jupyter-page">
+    <div id="page-info"><div id="page-title">Data analysis</div>
+</div>
+    <div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="COVID-19-Analysis">COVID-19 Analysis<a class="anchor-link" href="#COVID-19-Analysis"> </a></h1><p>This short report analyzes some of the data from the <a href="https://github.com/CSSEGISandData/COVID-19">repository by Johns Hopkins CCSE</a> related to the COVID-19 pandemic.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Preliminaries">Preliminaries<a class="anchor-link" href="#Preliminaries"> </a></h2><p>We have developed a simple Python module  with a set of functions that can be used to visualize the available data. The module is available in the repository (<a href="hedera_covid.py">hedera_covid.py</a>), the data as well.
+We periodically update the datasets with those available online.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">hedera_covid</span> <span class="kn">import</span> <span class="n">DataHandler</span><span class="p">,</span> <span class="n">plot_death_rate</span><span class="p">,</span> <span class="n">plot_daily_cases</span><span class="p">,</span> <span class="n">plot_confirmed_cases</span>
+
+<span class="n">path_confirmed</span> <span class="o">=</span> <span class="s1">&#39;~/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv&#39;</span>
+<span class="n">path_death</span> <span class="o">=</span> <span class="s1">&#39;~/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>First of all, we create an object of type <code>DataHandler</code>. This class can be used to perform internally operation on the dataset, so that data are afterwards ready and clean for plotting.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">covid_data</span> <span class="o">=</span> <span class="n">DataHandler</span><span class="p">(</span><span class="n">data_confirmed_path</span> <span class="o">=</span> <span class="n">path_confirmed</span><span class="p">,</span>
+                         <span class="n">data_death_path</span> <span class="o">=</span> <span class="n">path_death</span><span class="p">)</span>
+
+<span class="n">covid_data</span><span class="o">.</span><span class="n">confirmed</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="jb_output_wrapper }}">
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Province/State</th>
+      <th>Country/Region</th>
+      <th>Lat</th>
+      <th>Long</th>
+      <th>1/22/20</th>
+      <th>1/23/20</th>
+      <th>1/24/20</th>
+      <th>1/25/20</th>
+      <th>1/26/20</th>
+      <th>1/27/20</th>
+      <th>...</th>
+      <th>3/29/20</th>
+      <th>3/30/20</th>
+      <th>3/31/20</th>
+      <th>4/1/20</th>
+      <th>4/2/20</th>
+      <th>4/3/20</th>
+      <th>4/4/20</th>
+      <th>4/5/20</th>
+      <th>4/6/20</th>
+      <th>4/7/20</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>NaN</td>
+      <td>Afghanistan</td>
+      <td>33.0000</td>
+      <td>65.0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>120</td>
+      <td>170</td>
+      <td>174</td>
+      <td>237</td>
+      <td>273</td>
+      <td>281</td>
+      <td>299</td>
+      <td>349</td>
+      <td>367</td>
+      <td>423</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>NaN</td>
+      <td>Albania</td>
+      <td>41.1533</td>
+      <td>20.1683</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>212</td>
+      <td>223</td>
+      <td>243</td>
+      <td>259</td>
+      <td>277</td>
+      <td>304</td>
+      <td>333</td>
+      <td>361</td>
+      <td>377</td>
+      <td>383</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>NaN</td>
+      <td>Algeria</td>
+      <td>28.0339</td>
+      <td>1.6596</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>511</td>
+      <td>584</td>
+      <td>716</td>
+      <td>847</td>
+      <td>986</td>
+      <td>1171</td>
+      <td>1251</td>
+      <td>1320</td>
+      <td>1423</td>
+      <td>1468</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>NaN</td>
+      <td>Andorra</td>
+      <td>42.5063</td>
+      <td>1.5218</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>334</td>
+      <td>370</td>
+      <td>376</td>
+      <td>390</td>
+      <td>428</td>
+      <td>439</td>
+      <td>466</td>
+      <td>501</td>
+      <td>525</td>
+      <td>545</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>NaN</td>
+      <td>Angola</td>
+      <td>-11.2027</td>
+      <td>17.8739</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>7</td>
+      <td>7</td>
+      <td>7</td>
+      <td>8</td>
+      <td>8</td>
+      <td>8</td>
+      <td>10</td>
+      <td>14</td>
+      <td>16</td>
+      <td>17</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 81 columns</p>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Initialize-list-of-countries">Initialize list of countries<a class="anchor-link" href="#Initialize-list-of-countries"> </a></h2><p>Now, it is possible to get data of a country to the list that we want to look at. This can be done using</p>
+
+<pre><code>my_country = covid_data.get_country('Name of the country')
+
+</code></pre>
+<p>The <code>Name of the country</code> is the name given in the third column (<code>Country/Region</code>) of the <code>covid_data</code> dataframe.</p>
+<p>For example:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">italy</span> <span class="o">=</span> <span class="n">covid_data</span><span class="o">.</span><span class="n">get_country</span><span class="p">(</span><span class="s1">&#39;Italy&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This create a dictionary with the following keys:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">italy</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="jb_output_wrapper }}">
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>dict_keys([&#39;name&#39;, &#39;dates&#39;, &#39;confirmed&#39;, &#39;deaths&#39;, &#39;daily_new_cases&#39;, &#39;daily_deaths&#39;, &#39;start&#39;])</pre>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can also use
+    <code>covid_data.add_country('Name of the country')</code></p>
+<p>to fill a list of countries that we can later analyze together.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">my_countries</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Italy&#39;</span><span class="p">,</span><span class="s1">&#39;Spain&#39;</span><span class="p">,</span><span class="s1">&#39;Germany&#39;</span><span class="p">,</span><span class="s1">&#39;Austria&#39;</span><span class="p">,</span><span class="s1">&#39;France&#39;</span><span class="p">,</span><span class="s1">&#39;United Kingdom&#39;</span><span class="p">,</span><span class="s1">&#39;US&#39;</span><span class="p">,</span><span class="s1">&#39;Sweden&#39;</span><span class="p">,</span><span class="s1">&#39;Netherlands&#39;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">my_countries</span><span class="p">:</span>
+    <span class="n">covid_data</span><span class="o">.</span><span class="n">add_country</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Remark">Remark<a class="anchor-link" href="#Remark"> </a></h3><p>We can also load at once all available countries.</p>
+<p>For this, we will first create a new handler (so that we do not mix up data):</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># create first a new handler</span>
+<span class="n">covid_data_full</span> <span class="o">=</span> <span class="n">DataHandler</span><span class="p">(</span><span class="n">data_confirmed_path</span> <span class="o">=</span> <span class="n">path_confirmed</span><span class="p">,</span>
+                              <span class="n">data_death_path</span> <span class="o">=</span> <span class="n">path_death</span><span class="p">)</span>
+
+    
+    
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, we can get all names. Note that we have to use <code>np.unique</code> since there are countries that appear multiple times
+(this is how JHU stored the data)</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># now get all names</span>
+<span class="n">all_country_names</span> <span class="o">=</span> <span class="n">covid_data</span><span class="o">.</span><span class="n">confirmed</span><span class="p">[</span><span class="s1">&#39;Country/Region&#39;</span><span class="p">]</span>
+<span class="n">all_country_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">all_country_names</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">all_country_names</span><span class="p">:</span>
+    <span class="n">covid_data_full</span><span class="o">.</span><span class="n">add_country</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Number-of-confirmed-cases">Number of confirmed cases<a class="anchor-link" href="#Number-of-confirmed-cases"> </a></h2><h3 id="Daily-variation">Daily variation<a class="anchor-link" href="#Daily-variation"> </a></h3><p>The following figure shows the number of confirmed cases. Note that this is extremely dependent on the different testing 
+protocols and capacity of different countries.</p>
+<p>For this, we can use the function</p>
+
+<pre><code>plot_daily_cases(countries,start_date,n_smooth,rescale)
+
+</code></pre>
+<p>Parameters:</p>
+<ul>
+<li><code>countries</code>: a list of countries</li>
+<li><code>start_date</code>: day where the plot start (0 = January 22)</li>
+<li><code>n_smooth</code>: smoothing of the data (data will be averaged over <code>n_smooth</code> days, 7 is usually good)</li>
+<li><code>rescale</code>: set <code>True</code> if you want to rescale curves to the same <em>start</em>. In this case <code>start_date</code> won't be used.</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_daily_cases</span><span class="p">(</span><span class="n">covid_data</span><span class="o">.</span><span class="n">countries</span><span class="p">,</span><span class="n">start_date</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">n_smooth</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span><span class="n">rescale</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="jb_output_wrapper }}">
+<div class="output_area">
+
+
+
+<div class="output_png output_subarea ">
+<img src="images/main_16_0.png"
+>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Total-cases-(reported)">Total cases (reported)<a class="anchor-link" href="#Total-cases-(reported)"> </a></h3><p>We can look at the total number of cases using the function</p>
+
+<pre><code>plot_confirmed_cases(countries,start_date,n_smooth,rescale)
+
+</code></pre>
+<p>Parameters:</p>
+<ul>
+<li><code>countries</code>: a list of countries</li>
+<li><code>start_date</code>: day where the plot start (0 = January 22)</li>
+<li><code>n_smooth</code>: smoothing of the data (data will be averaged over <code>n_smooth</code> days, 7 is usually good)</li>
+<li><code>rescale</code>: set <code>True</code> if you want to rescale curves to the same <em>start</em>. In this case <code>start_date</code> won't be used.</li>
+<li><code>log_scale</code>: set to <code>True</code> to scale use logarithmic scale for the <em>y</em>-axis</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_confirmed_cases</span><span class="p">(</span><span class="n">covid_data</span><span class="o">.</span><span class="n">countries</span><span class="p">,</span><span class="n">start_date</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="n">n_smooth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">rescale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">log_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="jb_output_wrapper }}">
+<div class="output_area">
+
+
+
+<div class="output_png output_subarea ">
+<img src="images/main_18_0.png"
+>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Mortality-Rate">Mortality Rate<a class="anchor-link" href="#Mortality-Rate"> </a></h2><p>We can look at the official mortality rate over time for a selected set of countries</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_death_rate</span><span class="p">(</span><span class="n">covid_data</span><span class="o">.</span><span class="n">countries</span><span class="p">,</span><span class="n">start_date</span> <span class="o">=</span> <span class="mi">32</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="jb_output_wrapper }}">
+<div class="output_area">
+
+
+
+<div class="output_png output_subarea ">
+<img src="images/main_20_0.png"
+>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Number-of-confirmed-cases">Number of confirmed cases<a class="anchor-link" href="#Number-of-confirmed-cases"> </a></h1><p>The following figure shows the number of confirmed cases. Note that this is extremely dependent on the different testing 
+protocols and capacity of different countries.</p>
+<p>Use:</p>
+<ul>
+<li><code>start_date</code> to start plotting from a particular day (later than January 22)</li>
+<li><code>n_smooth</code> to smooth the data (7 is usually good)</li>
+<li><code>rescale</code> if you want to rescale curves to the same <em>start</em>. In this case <code>start_date</code> won't be used.</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plot_daily_cases</span><span class="p">([</span><span class="n">italy</span><span class="p">,</span><span class="n">colombia</span><span class="p">,</span><span class="n">spain</span><span class="p">,</span><span class="n">china</span><span class="p">],</span><span class="n">start_date</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">n_smooth</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span><span class="n">rescale</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="jb_output_wrapper }}">
+<div class="output_area">
+
+
+
+<div class="output_png output_subarea ">
+<img src="images/main_22_0.png"
+>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+ 
+
+
+    </main>
+    
