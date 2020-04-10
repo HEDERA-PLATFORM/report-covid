@@ -50,11 +50,14 @@ class DataHandler:
         daily_new_cases = []
         daily_deaths = []
         start = 0
+        start_death = 0
         for k in range(0,len(country_confirmed)-1):
             daily_new_cases.append(country_confirmed[k+1]-country_confirmed[k])
             daily_deaths.append(country_deaths[k+1]-country_deaths[k])
             if country_confirmed[k+1]>100 and country_confirmed[k]<=100:
                 start = k
+            if country_deaths[k+1]>10 and country_deaths[k]<=10:
+                start_death = k
             
         
         return {
@@ -64,12 +67,47 @@ class DataHandler:
             'deaths': np.array(country_deaths),
             'daily_new_cases': np.array(daily_new_cases),
             'daily_deaths': np.array(daily_deaths),
-            'start': start
+            'start': start,
+            'start_death': start_death
         }
 
     def add_country(self,c_name):
         c = self.get_country(c_name)
         self.countries.append(c)
+        
+    # return data structures to be used with plotly
+    def get_confirmed_data(self,start_date=0,n_smooth=7,rescale=True):
+        
+        N = len(self.countries[0]['confirmed'])
+        ind = np.arange(len(self.countries[0]['dates']))
+        plotly_data = []
+        
+        for c in self.countries:
+        
+            if rescale:
+                start_date = 0
+                s0 = c['start']
+                x = ind[s0:len(c['dates'])-1]
+            else:
+                s0 = 0
+                x = c['dates'][s0:len(c['dates'])-1]
+                
+            smoothed = smooth_data(c['confirmed'],n_smooth)
+            cases = smoothed[s0:N-1]
+    
+            plots = {
+                "type": "bar",
+                "name": c['name'],
+                "x": x,
+                "y": cases
+            }
+            plotly_data.append(plots)
+        
+        return plotly_data
+                
+                        
+            
+    
         
     
 class Plotter:
@@ -163,7 +201,7 @@ def plot_confirmed_cases(countries,start_date=0,n_smooth=0,rescale=False,log_sca
             start_date = 0
             s0 = c['start']
             smoothed = smooth_data(c['confirmed'],n_smooth)
-            cases = smoothed[s0:len(c['confirmed'])-1]
+            cases = smoothed[s0:N-1]
     
             if log_scale:
                 ax.semilogy(ind[s0:len(c['dates'])-1]-s0,cases,
@@ -176,7 +214,7 @@ def plot_confirmed_cases(countries,start_date=0,n_smooth=0,rescale=False,log_sca
             
             s0 = 0
             smoothed = smooth_data(c['confirmed'],n_smooth)
-            cases = smoothed[s0:len(c['confirmed'])-1]
+            cases = smoothed[s0:N-1]
             if log_scale:
                 ax.semilogy(ind[s0:len(c['dates'])-1]-s0,cases,
                      label=c['name'] + ' (Total cases = ' + str(c['confirmed'][-1]) + ')')
@@ -191,6 +229,46 @@ def plot_confirmed_cases(countries,start_date=0,n_smooth=0,rescale=False,log_sca
     plt.xlim(start_date,ind[len(ind)-1])
     plt.show()
     
+    
+def plot_deaths(countries,start_date=0,n_smooth=0,rescale=False,log_scale=False):
+    
+    fig, ax = plt.subplots(figsize=(13,7))
+    ind = np.arange(len(countries[0]['dates']))
+    N = len(countries[0]['deaths'])
+    
+    for c in countries:
+        
+        if rescale:
+            start_date = 0
+            s0 = c['start_death']
+            smoothed = smooth_data(c['deaths'],n_smooth)
+            cases = smoothed[s0:N-1]
+    
+            if log_scale:
+                ax.semilogy(ind[s0:len(c['dates'])-1]-s0,cases,
+                     label=c['name'] + ' (Total deaths = ' + str(c['deaths'][-1]) + ')')
+            else:
+                plt.plot(ind[s0:len(c['dates'])-1]-s0,cases,
+                         label=c['name'] + ' (Total deaths = ' + str(c['confirmed'][-1]) + ')')
+        
+        else:
+            
+            s0 = 0
+            smoothed = smooth_data(c['deaths'],n_smooth)
+            cases = smoothed[s0:N-1]
+            if log_scale:
+                ax.semilogy(ind[s0:len(c['dates'])-1]-s0,cases,
+                     label=c['name'] + ' (Total deaths = ' + str(c['deaths'][-1]) + ')')
+            else:
+                plt.plot(ind[s0:len(c['dates'])-1]-s0,cases,
+                         label=c['name'] + ' (Total deaths = ' + str(c['deaths'][-1]) + ')')
+            
+    plt.xticks(ind, rotation=90) 
+    plt.title(' Total number of (reported) deaths')
+    plt.legend(framealpha=1,frameon=False,bbox_to_anchor=(1.2,0.8),
+                        loc='upper center').set_draggable(True)
+    plt.xlim(start_date,ind[len(ind)-1])
+    plt.show()
 
 ####################################################################   
     
