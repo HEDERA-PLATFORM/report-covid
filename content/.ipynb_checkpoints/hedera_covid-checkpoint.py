@@ -106,6 +106,36 @@ class DataHandler:
         return plotly_data
                 
     # return data structures to be used with plotly
+    def get_deaths_data(self,start_date=0,n_smooth=7,rescale=True,plot_type="scatter"):
+        
+        N = len(self.countries[0]['deaths'])
+        ind = np.arange(len(self.countries[0]['dates']))
+        plotly_data = []
+        
+        for c in self.countries:
+        
+            if rescale:
+                start_date = 0
+                s0 = c['start_death']
+                x = ind[s0:N-1]-s0
+            else:
+                s0 = start_date
+                x = c['dates'][s0:len(c['dates'])-1]
+                
+            smoothed = smooth_data(c['deaths'],n_smooth)
+            cases = smoothed[s0:N-1]
+    
+            plots = {
+                "type": plot_type,
+                "name": c['name'],
+                "x": x,
+                "y": cases
+            }
+            plotly_data.append(plots)
+        
+        return plotly_data
+    
+    # return data structures to be used with plotly
     def get_daily_confirmed_data(self,start_date=0,n_smooth=7,rescale=True,plot_type="scatter"):
         
         N = len(self.countries[0]['confirmed'])
@@ -119,7 +149,7 @@ class DataHandler:
                 s0 = c['start']
                 x = ind[s0:N-1]-s0
             else:
-                s0 = 0
+                s0 = start_date
                 x = c['dates'][s0:len(c['dates'])-1]
                 
             smoothed = smooth_data(c['daily_new_cases'],n_smooth)
@@ -134,7 +164,37 @@ class DataHandler:
             plotly_data.append(plots)
         
         return plotly_data
+    
+    # return data structures to be used with plotly
+    def get_daily_deaths_data(self,start_date=0,n_smooth=7,rescale=True,plot_type="scatter"):
+        
+        N = len(self.countries[0]['deaths'])
+        ind = np.arange(len(self.countries[0]['dates']))
+        plotly_data = []
+        
+        for c in self.countries:
+        
+            if rescale:
+                start_date = 0
+                s0 = c['start_death']
+                x = ind[s0:N-1]-s0
+            else:
+                s0 = start_date
+                x = c['dates'][s0:len(c['dates'])-1]
                 
+            smoothed = smooth_data(c['daily_deaths'],n_smooth)
+            cases = smoothed[s0:N-1]
+    
+            plots = {
+                "type": plot_type,
+                "name": c['name'],
+                "x": x,
+                "y": cases
+            }
+            plotly_data.append(plots)
+        
+        return plotly_data
+    
     # return data structures to be used with plotly
     def get_death_rate_data(self,start_date=0,n_smooth=7,rescale=True,plot_type="scatter"):
         
