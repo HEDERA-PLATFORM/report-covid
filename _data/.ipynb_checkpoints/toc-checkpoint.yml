@@ -23,6 +23,8 @@
   not_numbered: true
   expand_sections: true
   sections:
+  - title: Berlin
+    url: /berlin
   - title: World Data (interactive)
     url: /interactive
   - title: Details

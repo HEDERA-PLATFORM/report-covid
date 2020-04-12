@@ -251,7 +251,7 @@ def smooth_data(array_in,n):
     N = len(array_in)
 
     for k in range(0,n):
-        smoothed.append(sum(array_in[k:k+n])/n)
+        smoothed.append(sum(array_in[0:k+1])/(k+1))
         
     for k in range(n,N):
         smoothed.append(sum(array_in[k-n:k])/n)

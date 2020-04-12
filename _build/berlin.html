@@ -1,0 +1,236 @@
+---
+interact_link: content/berlin.ipynb
+kernel_name: python3
+kernel_path: content
+has_widgets: false
+title: |-
+  Berlin
+pagenum: 1
+prev_page:
+  url: /main.html
+next_page:
+  url: /interactive.html
+suffix: .ipynb
+search: berlin data city periodically reported landesamt fr gesundheit und soziales www de corona fallstatistik council outbreak daily variation
+
+comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
+---
+
+    <main class="jupyter-page">
+    <div id="page-info"><div id="page-title">Berlin</div>
+</div>
+    <div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Data-for-Berlin">Data for Berlin<a class="anchor-link" href="#Data-for-Berlin"> </a></h1><p>Data for the city of Berlin are periodically reported from the <a href="https://www.berlin.de/corona/fallstatistik/">Landesamt
+für Gesundheit und Soziales</a> of the Berlin Council.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell tag_hidecode tag_hide_input">
+
+<div class="cell border-box-sizing code_cell rendered tag_hidecode tag_hide_input">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># for plotly</span>
+<span class="kn">from</span> <span class="nn">plotly.offline</span> <span class="kn">import</span> <span class="n">iplot</span>
+<span class="kn">from</span> <span class="nn">plotly.offline</span> <span class="kn">import</span> <span class="n">init_notebook_mode</span><span class="p">,</span> <span class="n">plot</span>
+<span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span>
+<span class="kn">import</span> <span class="nn">plotly</span> <span class="k">as</span> <span class="nn">py</span>
+<span class="kn">import</span> <span class="nn">plotly.tools</span> <span class="k">as</span> <span class="nn">tls</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">hedera_covid</span> <span class="kn">import</span> <span class="n">DataHandler</span><span class="p">,</span> <span class="n">smooth_data</span><span class="p">,</span> <span class="n">plot_death_rate</span><span class="p">,</span> <span class="n">plot_daily_cases</span><span class="p">,</span> <span class="n">plot_confirmed_cases</span>
+
+<span class="c1"># load data</span>
+<span class="n">berlin_data</span> <span class="o">=</span> <span class="s1">&#39;../../DE-Data/data.csv&#39;</span>
+<span class="n">berlin</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">berlin_data</span><span class="p">)</span>
+<span class="n">berlin</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">,</span><span class="s1">&#39;confirmed&#39;</span><span class="p">,</span><span class="s1">&#39;treated&#39;</span><span class="p">,</span><span class="s1">&#39;intensive&#39;</span><span class="p">,</span><span class="s1">&#39;deaths&#39;</span><span class="p">]</span>
+
+<span class="c1"># preparation</span>
+<span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">confirmed</span><span class="p">)</span>
+<span class="n">dates</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]:</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">10</span><span class="p">]),</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]),</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">dates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> %b&#39;</span><span class="p">))</span>
+
+<span class="n">confirmed_daily</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">deaths_daily</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">confirmed_daily</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">deaths_daily</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">confirmed_daily</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;confirmed&#39;</span><span class="p">][</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;confirmed&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">deaths_daily</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;deaths&#39;</span><span class="p">][</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;deaths&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+    
+<span class="n">confirmed</span> <span class="o">=</span> <span class="n">smooth_data</span><span class="p">(</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;confirmed&#39;</span><span class="p">],</span><span class="n">n</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">serious</span> <span class="o">=</span> <span class="n">smooth_data</span><span class="p">(</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;intensive&#39;</span><span class="p">],</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">deaths</span> <span class="o">=</span> <span class="n">smooth_data</span><span class="p">(</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;deaths&#39;</span><span class="p">],</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">treated</span> <span class="o">=</span> <span class="n">smooth_data</span><span class="p">(</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;treated&#39;</span><span class="p">],</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="jb_output_wrapper }}">
+<div class="output_area">
+
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-1-b0e69297b649&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">     28</span> deaths_daily<span class="ansi-blue-fg">.</span>append<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     29</span> 
+<span class="ansi-green-fg">---&gt; 30</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">for</span> i <span class="ansi-green-fg">in</span> range<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">,</span>len<span class="ansi-blue-fg">(</span>confirmed<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">-</span><span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">     31</span>     confirmed_daily<span class="ansi-blue-fg">.</span>append<span class="ansi-blue-fg">(</span>berlin<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#39;confirmed&#39;</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span>i<span class="ansi-blue-fg">+</span><span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">-</span>berlin<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#39;confirmed&#39;</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span>i<span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     32</span>     deaths_daily<span class="ansi-blue-fg">.</span>append<span class="ansi-blue-fg">(</span>berlin<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#39;deaths&#39;</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span>i<span class="ansi-blue-fg">+</span><span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">-</span>berlin<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#39;deaths&#39;</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span>i<span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span>
+
+<span class="ansi-red-fg">NameError</span>: name &#39;confirmed&#39; is not defined</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Outbreak-over-time">Outbreak over time<a class="anchor-link" href="#Outbreak-over-time"> </a></h2>
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell tag_hidecode tag_hide_input">
+
+<div class="cell border-box-sizing code_cell rendered tag_hidecode tag_hide_input">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+
+
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">dates</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">confirmed</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Reported Cases (Total = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;confirmed&#39;</span><span class="p">][</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+<span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">dates</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">deaths</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Reported Deaths (Total = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;deaths&#39;</span><span class="p">][</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+<span class="p">))</span>
+
+
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">dates</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">serious</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Intensive Care (Total = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;intensive&#39;</span><span class="p">][</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+<span class="p">))</span>
+    
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">xaxis_tickangle</span><span class="o">=-</span><span class="mi">90</span><span class="p">)</span>
+
+<span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;figure.html&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="s1">&#39;figure.html&#39;</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Daily-variation">Daily variation<a class="anchor-link" href="#Daily-variation"> </a></h2>
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell tag_hidecode tag_hide_input">
+
+<div class="cell border-box-sizing code_cell rendered tag_hidecode tag_hide_input">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+
+
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">dates</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">confirmed_daily</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Daily Reported Cases (Total = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;confirmed&#39;</span><span class="p">][</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">,</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s2">&quot;#117A65&quot;</span><span class="p">}</span>
+<span class="p">))</span>
+<span class="n">n_smooth</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">dates</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">smooth_data</span><span class="p">(</span><span class="n">confirmed_daily</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="n">n_smooth</span><span class="p">),</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Averaged over &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n_smooth</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; days&#39;</span><span class="p">,</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s2">&quot;#48C9B0&quot;</span><span class="p">}</span>
+<span class="p">))</span>
+
+
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">dates</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">deaths_daily</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Daily Reported Deaths (Total = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">berlin</span><span class="p">[</span><span class="s1">&#39;deaths&#39;</span><span class="p">][</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">,</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;#F7DC6F&#39;</span><span class="p">}</span>
+<span class="p">))</span>
+
+<span class="n">n_smooth</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">dates</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">smooth_data</span><span class="p">(</span><span class="n">deaths_daily</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="n">n_smooth</span><span class="p">),</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Averaged over &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n_smooth</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; days&#39;</span><span class="p">,</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s2">&quot;#EB984E&quot;</span><span class="p">}</span>
+<span class="p">))</span>
+    
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">xaxis_tickangle</span><span class="o">=-</span><span class="mi">90</span><span class="p">)</span>
+
+<span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;figure.html&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="s1">&#39;figure.html&#39;</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+ 
+
+
+    </main>
+    
