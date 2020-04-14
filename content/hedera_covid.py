@@ -14,6 +14,35 @@ import matplotlib.pyplot as plt
 import numpy as np
 import datetime
 
+class DataHandlerBerlin:
+    def __init__(self,path=None):
+        if path==None:
+            path = '/Users/caiazzo/HEDERA/CODES/covid-19-toolkit/DE-Data/data-fIw01.csv'
+        self.data = pd.read_csv(path)
+        self.data.columns = ['dates','confirmed','stationary','intensive','deaths']
+        
+        N = len(self.data['dates'])
+        dates = []
+        for d in self.data['dates']:
+            dt = datetime.datetime(int(d[6:10]),int(d[3:5]),int(d[0:2]))
+            dates.append(dt.strftime('%d %b'))
+        self.data['dates']=dates
+        confirmed_daily = []
+        deaths_daily = []
+        
+        confirmed_daily.append(0)
+        deaths_daily.append(0)
+
+        for i in range(0,N-1):
+            confirmed_daily.append(self.data['confirmed'][i+1]-
+                                   self.data['confirmed'][i])
+            deaths_daily.append(self.data['deaths'][i+1]-
+                                self.data['deaths'][i])
+            
+        self.data['confirmed_daily'] = confirmed_daily
+        self.data['deaths_daily'] = deaths_daily
+
+
 class DataHandlerItaly:
     def __init__(self,path=None):
         if path==None:
@@ -111,23 +140,6 @@ class DataHandlerItaly:
         
         return plot_data
         
-def plot_structure(plot_data,title=None):
-    
-    fig, ax = plt.subplots(figsize=(13,7))  
-    
-    ind = np.arange(len(plot_data[0]['x']))
-    for p in plot_data:
-        plt.plot(p['x'],p['y'],label=p['name'])
-    
-    plt.xticks(ind, plot_data[0]['x'], rotation=90) 
-    
-    plt.legend(framealpha=1,frameon=False,bbox_to_anchor=(1.15,0.3),
-                       loc='upper center').set_draggable(True)
-    if not title == None:
-        plt.title(title)
-    #plt.xlim(start_date,ind[len(ind)-1])
-    plt.show()
-
 
 # a class to handle the data (JHU)
 class DataHandler:
@@ -344,20 +356,29 @@ class DataHandler:
         
         return plotly_data
                         
+####################################################################
+# plot an array of dict
+# plot_data should contain: x,y,name,type
             
+def plot_structure(plot_data,title=None):
     
-        
+    fig, ax = plt.subplots(figsize=(13,7))  
     
-class Plotter:
-    def __init__(self, handler):
-        self.n_countries = 0
-        self.countries = []
-        self.handler = handler
+    ind = np.arange(len(plot_data[0]['x']))
+    for p in plot_data:
+        plt.plot(p['x'],p['y'],label=p['name'])
     
-    def add_country(self,c_name):
-        c = self.handler.get_country(c_name)
-        self.countries.append(c)
-        self.n_countries += 1
+    plt.xticks(ind, plot_data[0]['x'], rotation=90) 
+    
+    plt.legend(framealpha=1,frameon=False,bbox_to_anchor=(1.15,0.3),
+                       loc='upper center').set_draggable(True)
+    if not title == None:
+        plt.title(title)
+    #plt.xlim(start_date,ind[len(ind)-1])
+    plt.show()
+
+    
+    
     
 ####################################################################
 # simple function to smooth recorded data over n days
@@ -375,6 +396,11 @@ def smooth_data(array_in,n):
         smoothed.append(sum(array_in[k-n:k])/n)
         
     return np.array(smoothed)
+
+
+
+####################################################################
+# OLD FUNCTIONS
 
 # plot the ration deaths/confirmed
 def plot_death_rate(countries,start_date=0):
