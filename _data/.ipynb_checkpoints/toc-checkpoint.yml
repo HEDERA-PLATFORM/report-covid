@@ -25,8 +25,8 @@
   sections:
   - title: Berlin
     url: /berlin
-  - title: World Data (interactive)
-    url: /interactive
+  - title: Italy
+    url: /italy
   - title: Details
     url: /code
   
