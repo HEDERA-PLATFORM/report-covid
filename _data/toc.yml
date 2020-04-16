@@ -27,10 +27,18 @@
     url: /berlin
   - title: Italy
     url: /italy
-  - title: Details
-    url: /code
   
+#-------------------------------------------------------------------------------------------------------------------
+# Divider for meta-pages and content page
+- divider: true
 
+- title: Sources
+  url: /sources
+  not_numbered: true
+
+
+    
+    
 #-------------------------------------------------------------------------------------------------------------------
 # Divider for meta-pages and content page
 - divider: true
